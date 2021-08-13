@@ -11,27 +11,28 @@ class InputPreparator:
 
     @staticmethod
     def normalize_text_from_wikipedia(text):
-        Lines = text.split('\n')
+        lines = text.split('\n')
         count = 0
-        CurrentText = []
+        current_text = []
         data = []
-        for line in Lines:
+        topic_pattern = '((=)+)'
+        escape_topic_pattern = '====='
+        for line in lines:
             count += 1
             txt = line
-            x = re.sub("((=)+)", "=====", txt)
-            if x.count("=====") == 2:
-                if x.count("References") > 0:
+            x = re.sub(topic_pattern, escape_topic_pattern, txt)
+            if x.count(escape_topic_pattern) == 2:
+                if x.count('References') > 0:
                     break
-                level = txt.count('=')
-                if len(CurrentText) > 0:
-                    data.append(CurrentText)
+                if len(current_text) > 0:
+                    data.append(current_text)
                 data.append(txt)
-                CurrentText = []
+                current_text = []
             else:
                 if len(line.strip()) > 0:
-                    CurrentText += [line.strip().replace("\n", " ")]
-        if len(CurrentText) > 0:
-            data.append(CurrentText)
+                    current_text += [line.strip().replace('\n', ' ')]
+        if len(current_text) > 0:
+            data.append(current_text)
         return data
 
     @staticmethod

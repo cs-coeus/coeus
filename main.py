@@ -17,39 +17,43 @@ test_text_key = 'KMUTT is a university'
 inputP = InputPreparator()
 print(inputP.normalize_text_from_wikipedia("""= test1 = \n 123"""))
 
-# summarizerModel = ModelSummarizer()
-# print(summarizerModel.predict(test_text))
+summarizerModel = ModelSummarizer()
+print(summarizerModel.predict(test_text))
 
-# qaModel = ModelQA()
-# tuple_test = (test_text_qa, ('Apple',0.6), ['What is '])
-# print(tuple_test)
-# print(qaModel.predict(tuple_test))
+qaModel = ModelQA()
+tuple_test = (test_text_qa, ('Apple', 0.6), ['What is '])
+print(tuple_test)
+print(qaModel.predict(tuple_test))
 
-# keybertModel = ModelKeyBert()
-# print(keybertModel.predict(test_text_key))
+keybertModel = ModelKeyBert()
+print(keybertModel.predict(test_text_key))
 
-# sents = ["Obama speaks to the media in Illinois", "The president greets the press in Chicago",
-#          "Obama speaks to the media in Illinois", "The president greets the press in Chicago",
-#          "Obama speaks to the media in Illinois", "The president greets the press in Chicago",
-#          "Obama speaks to the media in Illinois", "The president greets the press in Chicago",
-#          "The president greets the press in Chicago", "The president greets the press in Chicago",
-#          "Oranges are my favorite fruit"]
-#
-# clusteringModel = ModelClustering()
-# # data = [sent.text for sent in sents]
-# data = sents
-# X = np.arange(len(data)).reshape(-1, 1)
-#
-#
-# def distance(x, y):
-#     return ModelClustering.wmd.wmdistance(inputP.preprocess_senetence_to_arr(data[int(x[0])]), inputP.preprocess_senetence_to_arr(data[int(y[0])]))
-# proximity_matrix = pairwise_distances(X, X, metric=distance)
-# best_k, best_cluster = clusteringModel.predict((X, len(sents), proximity_matrix))
-#
-# print(best_k, best_cluster)
-#
-# spacyModel = ModelSpacy()
-# print(list(spacyModel.predict(test_text).sents))
+sents = ['Obama speaks to the media in Illinois', 'The president greets the press in Chicago',
+         'Obama speaks to the media in Illinois', 'The president greets the press in Chicago',
+         'Obama speaks to the media in Illinois', 'The president greets the press in Chicago',
+         'Obama speaks to the media in Illinois', 'The president greets the press in Chicago',
+         'The president greets the press in Chicago', 'The president greets the press in Chicago',
+         'Oranges are my favorite fruit']
 
-print(InputPreparator.normalize_text_from_wikipedia(WikiRepository.getData("""King_Mongkut's_University_of_Technology_Thonburi""")))
+clusteringModel = ModelClustering()
+# data = [sent.text for sent in sents]
+data = sents
+X = np.arange(len(data)).reshape(-1, 1)
 
+
+def distance(x, y):
+    return ModelClustering.wmd.wmdistance(inputP.preprocess_senetence_to_arr(data[int(x[0])]),
+                                          inputP.preprocess_senetence_to_arr(data[int(y[0])]))
+
+
+proximity_matrix = pairwise_distances(X, X, metric=distance)
+best_k, best_cluster = clusteringModel.predict((X, len(sents), proximity_matrix))
+
+print(best_k, best_cluster)
+
+spacyModel = ModelSpacy()
+print(list(spacyModel.predict(test_text).sents))
+
+wikiRepo = WikiRepository()
+print(InputPreparator.normalize_text_from_wikipedia(
+    WikiRepository.getData("""King_Mongkut's_University_of_Technology_Thonburi""")))
