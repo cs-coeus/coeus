@@ -58,11 +58,11 @@ from datetime import datetime
 # wiki_repo = WikiRepository()
 # print(InputPreparator.normalize_text_from_wikipedia(
 #     WikiRepository.getData("""King_Mongkut's_University_of_Technology_Thonburi""")))
-# present_date_with_time = datetime.now()
 client = Client()
-# print(Client.generate_mind_map_from_semi_structure_text("""King_Mongkut's_University_of_Technology_Thonburi"""))
-# present_date_with_time_end = datetime.now()
-# print('total,', present_date_with_time_end - present_date_with_time)
+present_date_with_time = datetime.now()
+print(Client.generate_mind_map_from_semi_structure_text("""King_Mongkut's_University_of_Technology_Thonburi"""))
+present_date_with_time_end = datetime.now()
+print('total,', present_date_with_time_end - present_date_with_time)
 
 present_date_with_time = datetime.now()
 print(Client.generate_mind_map_from_unstructured_text('News - Apple helps Encircle expand its support for LGBTQ+ youth and their families',"""In the summer of 2017, the Toelupe family heard about a little blue house in Provo, Utah, called Encircle. The nonprofit had a simple message, “No sides, only love” — and in the years to come, Encircle would prove to be part second home, part sanctuary, and the entry point to a community Micah Toelupe credits with saving his life.

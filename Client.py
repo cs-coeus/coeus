@@ -7,7 +7,6 @@ from ModelClustering import ModelClustering
 from ModelSpacy import ModelSpacy
 from WikiRepository import WikiRepository
 import numpy as np
-from datetime import datetime
 
 
 class Client:
@@ -101,27 +100,15 @@ class Client:
     @staticmethod
     def algorithm(original_text, curr_sentence):
         min_sentence_threshold = 7
-        present_date_with_time = datetime.now()
         summary = Client.summarize_model.predict(curr_sentence)
-        present_date_with_time_end = datetime.now()
-        print('summarize,', present_date_with_time_end - present_date_with_time)
-        present_date_with_time = datetime.now()
         doc = Client.spacy_model.predict(summary)
-        present_date_with_time_end = datetime.now()
-        print('spacy,', present_date_with_time_end - present_date_with_time)
         sentences = list(doc.sents)
         if len(sentences) <= min_sentence_threshold:
-            present_date_with_time = datetime.now()
             keys = Client.keybert_model.predict(curr_sentence)
-            present_date_with_time_end = datetime.now()
-            print('key,', present_date_with_time_end - present_date_with_time)
             all_keys_child = []
             if keys:
                 for key in keys:
-                    present_date_with_time = datetime.now()
                     result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                    present_date_with_time_end = datetime.now()
-                    print('qa,', present_date_with_time_end - present_date_with_time)
                     key_map = {'keywords': key, '_child': result_of_q}
                     all_keys_child += [key_map]
                 return all_keys_child
@@ -136,24 +123,14 @@ class Client:
                 return Client.clustering_model.wmd.wmdistance(Client.input_preparator.preprocess(data[int(x[0])]),
                                                               Client.input_preparator.preprocess(data[int(y[0])]))
 
-            present_date_with_time = datetime.now()
-
             proximity_matrix = pairwise_distances(X, X, metric=distance)
             best_k, best_cluster = Client.clustering_model.predict(X, len(sentences), proximity_matrix)
-            present_date_with_time_end = datetime.now()
-            print('cluster,', present_date_with_time_end - present_date_with_time)
             if np.all(best_cluster == best_cluster[0]):
-                present_date_with_time = datetime.now()
                 keys = Client.keybert_model.predict(curr_sentence)
-                present_date_with_time_end = datetime.now()
-                print('key,', present_date_with_time_end - present_date_with_time)
                 all_keys_child = []
                 if keys:
                     for key in keys:
-                        present_date_with_time = datetime.now()
                         result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                        present_date_with_time_end = datetime.now()
-                        print('qa,', present_date_with_time_end - present_date_with_time)
                         key_map = {'keywords': key, '_child': result_of_q}
                         all_keys_child += [key_map]
                     return all_keys_child
