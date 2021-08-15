@@ -103,13 +103,15 @@ class Client:
         summary = Client.summarize_model.predict(curr_sentence)
         doc = Client.spacy_model.predict(summary)
         sentences = list(doc.sents)
+        keywords_escape_character = 'keywords'
+        child_escape_character = '_child'
         if len(sentences) <= min_sentence_threshold:
             keys = Client.keybert_model.predict(curr_sentence)
             all_keys_child = []
             if keys:
                 for key in keys:
                     result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                    key_map = {'keywords': key, '_child': result_of_q}
+                    key_map = {keywords_escape_character: key, child_escape_character: result_of_q}
                     all_keys_child += [key_map]
                 return all_keys_child
             else:
@@ -131,7 +133,7 @@ class Client:
                 if keys:
                     for key in keys:
                         result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                        key_map = {'keywords': key, '_child': result_of_q}
+                        key_map = {keywords_escape_character: key, child_escape_character: result_of_q}
                         all_keys_child += [key_map]
                     return all_keys_child
             return Client.algorithm(original_text, sentences.join('. '))
