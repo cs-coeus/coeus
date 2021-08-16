@@ -23,6 +23,7 @@ class Client:
         Client.id_key_string = 'id'
         Client.text_key_string = 'text'
         Client.parent_id_key_string = 'parentId'
+        Client.child_id_key_string = 'childId'
         Client.keywords_escape_character = 'keywords'
         Client.child_escape_character = '_child'
 
@@ -191,3 +192,15 @@ class Client:
         current_dictionary = mind_map_dictionary.get(list(mind_map_dictionary.keys())[0])
         helper_function(current_dictionary, parent_id, array_of_nodes)
         return array_of_nodes
+
+    @staticmethod
+    def transform_intermediate_json_to_final(intermediate_json):
+        final_json = {
+            'nodes': [
+                {Client.id_key_string: node[Client.id_key_string], Client.text_key_string: node[Client.text_key_string]}
+                for node in intermediate_json],
+            'edges': [{Client.parent_id_key_string: node[Client.parent_id_key_string],
+                     Client.child_id_key_string: node[Client.id_key_string]} for node in intermediate_json if
+                    node[Client.parent_id_key_string] != -1]
+        }
+        return final_json

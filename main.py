@@ -176,5 +176,6 @@ kmutt_dict = {"King Mongkut's University of Technology Thonburi": {
     'Transportation': {'_paragraph': [[{'keywords': ('free bus service bangmod campus', 0.6682),
                                         '_child': [('What is free bus service bangmod campus ?', 'KMUTT')]}]]},
     'KMUTT Library': {'_paragraph': [[{'keywords': ('october 2000 changed kmutt library', 0.7883), '_child': []}]]}}}
-
 print(client.transform_mind_map_to_intermediate_json_data_structure(kmutt_dict))
+
+print(client.transform_intermediate_json_to_final(client.transform_mind_map_to_intermediate_json_data_structure(kmutt_dict)))
