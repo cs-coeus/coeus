@@ -20,6 +20,11 @@ class Client:
         Client.spacy_model = ModelSpacy()
         Client.wiki_repo = WikiRepository()
         Client.paragraph_escape_character = '_paragraph'
+        Client.id_key_string = 'id'
+        Client.text_key_string = 'text'
+        Client.parent_id_key_string = 'parentId'
+        Client.keywords_escape_character = 'keywords'
+        Client.child_escape_character = '_child'
 
     @staticmethod
     def generate_mind_map_from_semi_structure_text(wiki_url):
@@ -103,15 +108,13 @@ class Client:
         summary = Client.summarize_model.predict(curr_sentence)
         doc = Client.spacy_model.predict(summary)
         sentences = list(doc.sents)
-        keywords_escape_character = 'keywords'
-        child_escape_character = '_child'
         if len(sentences) <= min_sentence_threshold:
             keys = Client.keybert_model.predict(curr_sentence)
             all_keys_child = []
             if keys:
                 for key in keys:
                     result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                    key_map = {keywords_escape_character: key, child_escape_character: result_of_q}
+                    key_map = {Client.keywords_escape_character: key, Client.child_escape_character: result_of_q}
                     all_keys_child += [key_map]
                 return all_keys_child
             else:
@@ -133,7 +136,58 @@ class Client:
                 if keys:
                     for key in keys:
                         result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                        key_map = {keywords_escape_character: key, child_escape_character: result_of_q}
+                        key_map = {Client.keywords_escape_character: key, Client.child_escape_character: result_of_q}
                         all_keys_child += [key_map]
                     return all_keys_child
             return Client.algorithm(original_text, sentences.join('. '))
+
+    @staticmethod
+    def transform_mind_map_to_intermediate_json_data_structure(mind_map_dictionary):
+        common_data = {
+            'current_id': 0
+        }
+        current_id_key_string = 'current_id'
+
+        def helper_function(_current_dictionary, _parent_id, _array_of_nodes):
+            all_key = list(_current_dictionary.keys())
+            if len(all_key) == 1 and all_key[0] == Client.paragraph_escape_character:
+                for para_key in _current_dictionary[all_key[0]]:
+                    for keyword in para_key:
+                        _array_of_nodes.append({
+                            Client.id_key_string: common_data[current_id_key_string],
+                            Client.text_key_string: keyword[Client.keywords_escape_character][0],
+                            Client.parent_id_key_string: _parent_id
+                        })
+                        parent_id_current_level = common_data[current_id_key_string]
+                        common_data[current_id_key_string] = common_data[current_id_key_string] + 1
+                        if len(keyword[Client.child_escape_character]) > 0:
+                            for child in keyword[Client.child_escape_character]:
+                                _array_of_nodes.append({
+                                    Client.id_key_string: common_data[current_id_key_string],
+                                    Client.text_key_string: child[1],
+                                    Client.parent_id_key_string: parent_id_current_level
+                                })
+                                common_data[current_id_key_string] = common_data[current_id_key_string] + 1
+
+            else:
+                for key in filter(lambda x: x != Client.paragraph_escape_character, all_key):
+                    _array_of_nodes.append({
+                        Client.id_key_string: common_data[current_id_key_string],
+                        Client.text_key_string: key,
+                        Client.parent_id_key_string: _parent_id
+                    })
+                    parent_id_current_level = common_data[current_id_key_string]
+                    common_data[current_id_key_string] = common_data[current_id_key_string] + 1
+
+                    helper_function(_current_dictionary[key], parent_id_current_level, _array_of_nodes)
+
+        array_of_nodes = [{
+            Client.id_key_string: common_data[current_id_key_string],
+            Client.text_key_string: list(mind_map_dictionary.keys())[0],
+            Client.parent_id_key_string: -1
+        }]
+        parent_id = common_data[current_id_key_string]
+        common_data[current_id_key_string] = common_data[current_id_key_string] + 1
+        current_dictionary = mind_map_dictionary.get(list(mind_map_dictionary.keys())[0])
+        helper_function(current_dictionary, parent_id, array_of_nodes)
+        return array_of_nodes
