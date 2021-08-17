@@ -10,7 +10,7 @@ import numpy as np
 from Client import Client
 from datetime import datetime
 
-# test_text = 'When completed in 2023, the CENI facility will become a prototype "future internet" connecting to almost everything - from computers at home to cars on the street - for seamless communications in an AI-driven society.KMUTT is a university.'
+test_text = """King Mongkut's University of Technology Thonburi can trace its origin to the Thonburi Technical College (TTC) which was established on 4 February 1960, by the Department of Vocational Education, Ministry of Education. TTC had the mission of training technicians, technical instructors, and technologists. By virtue of the Technology Act, enacted 21 April 1971, three technical institutes are under the Department of Vocational Education: Thonburi Technical Institute (TTI), North Bangkok Technical Institute, and Nonthaburi Telecommunication Institute. They were combined to form one degree-granting institution under the name King Mongkut's Institute of Technology (KMIT) spread across three campuses. TTC thus became KMIT Thonburi campus. In 1974, KMIT was transferred from the Ministry of Education to the Ministry of University Affairs.A new technology act was enacted 19 February 1986: the three campuses of KMIT became three autonomous institutes, each having university status. KMIT Thonburi campus became King Mongkut's Institute of Technology Thonburi (KMITT)."""
 #
 # test_text_qa = 'Apple is a fruit. Apple is red. Apple is delicious.'
 # test_text_key = 'KMUTT is a university'
@@ -59,10 +59,10 @@ from datetime import datetime
 # print(InputPreparator.normalize_text_from_wikipedia(
 #     WikiRepository.getData("""King_Mongkut's_University_of_Technology_Thonburi""")))
 client = Client()
-# present_date_with_time = datetime.now()
-# print(Client.generate_mind_map_from_semi_structure_text("""King_Mongkut's_University_of_Technology_Thonburi"""))
-# present_date_with_time_end = datetime.now()
-# print('total,', present_date_with_time_end - present_date_with_time)
+present_date_with_time = datetime.now()
+print(Client.generate_mind_map_from_semi_structure_text("""King_Mongkut's_University_of_Technology_Thonburi"""))
+present_date_with_time_end = datetime.now()
+print('total,', present_date_with_time_end - present_date_with_time)
 #
 # present_date_with_time = datetime.now()
 # print(Client.generate_mind_map_from_unstructured_text('News - Apple helps Encircle expand its support for LGBTQ+ youth and their families',"""In the summer of 2017, the Toelupe family heard about a little blue house in Provo, Utah, called Encircle. The nonprofit had a simple message, “No sides, only love” — and in the years to come, Encircle would prove to be part second home, part sanctuary, and the entry point to a community Micah Toelupe credits with saving his life.
@@ -123,59 +123,81 @@ client = Client()
 # present_date_with_time_end = datetime.now()
 # print('total,', present_date_with_time_end - present_date_with_time)
 
-kmutt_dict = {"King Mongkut's University of Technology Thonburi": {
-    '_paragraph': [[{'keywords': ('school seventh oldest university thailand', 0.7616), '_child': []}]], 'History': {
-        '_paragraph': [[{'keywords': ('established february 1960 department vocational', 0.7073), '_child': []}]]},
-    'Governance and organisation': {
-        '_paragraph': [[{'keywords': ('regalia great crown victory sword', 0.7596), '_child': []}]]},
-    'Faculties and Schools': {'_paragraph': [[{'keywords': ('kmutt following faculties schools', 0.837),
-                                               '_child': [('Where is kmutt following faculties schools ?', 'KMUTT')]}],
-                                             [{'keywords': ('faculty engineering foe', 0.884), '_child': []}], [
-                                                 {'keywords': ('science fsci', 0.9183),
-                                                  '_child': [('What is science fsci ?', 'Faculty of Science'),
-                                                             ('Where is science fsci ?', 'Faculty of Science')]}], [
-                                                 {'keywords': ('faculty industrial education technology fiet', 0.954),
-                                                  '_child': []}],
-                                             [{'keywords': ('school liberal arts sola', 0.9587), '_child': []}], [
-                                                 {'keywords': ('school information technology sit', 0.9061),
-                                                  '_child': []}],
-                                             [{'keywords': ('school architecture design soa', 0.9142), '_child': []}], [
-                                                 {'keywords': ('school energy environment materials', 0.8451),
-                                                  '_child': []}], [
-                                                 {'keywords': ('school bioresources technology sbt', 0.9244),
-                                                  '_child': [('What is school bioresources technology sbt ?',
-                                                              'School of Bioresources and Technology')]}], [
-                                                 {'keywords': ('graduate school energy environment jgsee', 0.9281),
-                                                  '_child': [('What is graduate school energy environment jgsee ?',
-                                                              'Join Graduate School of Energy and Environment'), (
-                                                                 'Where is graduate school energy environment jgsee ?',
-                                                                 'Join')]}], [
-                                                 {'keywords': ('institute field robotics fibo', 0.9503), '_child': [(
-                                                     'What is institute field robotics fibo ?',
-                                                     'Institute of Field Robotics')]}],
-                                             [{'keywords': ('graduate school management innovation gmi', 0.9349),
-                                               '_child': []}], [
-                                                 {'keywords': ('college multidisciplinary sciences', 0.9599),
-                                                  '_child': [('What is college multidisciplinary sciences ?',
-                                                              'College of Multidisciplinary Sciences')]}]],
-                              'School of Architecture and Design': {'_paragraph': [[{'keywords': (
-                                  'school changed school architecture school', 0.6617), '_child': []}]]}},
-    'Student life': {
-        '_paragraph': [[{'keywords': ('sports complex includes facilities gymnasium', 0.8072), '_child': []}], [
-            {'keywords': ('support mission university provide education', 0.7606),
-             '_child': [('What is support mission university provide education ?', 'information technology')]}],
-                       [{'keywords': ('kmutt residence independent non profit', 0.8709), '_child': []}],
-                       [{'keywords': ('student activities sports services sports', 0.79), '_child': []}]]},
-    'Campuses': {'Bangmod main campus': {'_paragraph': [[{'keywords': ('area main campus 52 acres', 0.7643), '_child': [
-        ('What is area main campus 52 acres ?', 'Bang Mot')]}]]}, 'Bang Khun Thian Campus': {
-        '_paragraph': [[{'keywords': ('khun thian campus 80 acres', 0.8037), '_child': []}]]}, 'Ratchaburi Campus': {
-        '_paragraph': [[{'keywords': ('bangmod campus bangkok 500 million', 0.6875),
-                         '_child': [('Where is bangmod campus bangkok 500 million ?', 'Bangkok')]}]]},
-                 'Main campus dormitories': {
-                     '_paragraph': [[{'keywords': ('dormitory completed 130 million baht', 0.6974), '_child': []}]]}},
-    'Transportation': {'_paragraph': [[{'keywords': ('free bus service bangmod campus', 0.6682),
-                                        '_child': [('What is free bus service bangmod campus ?', 'KMUTT')]}]]},
-    'KMUTT Library': {'_paragraph': [[{'keywords': ('october 2000 changed kmutt library', 0.7883), '_child': []}]]}}}
-print(client.transform_mind_map_to_intermediate_json_data_structure(kmutt_dict))
+kmutt_dict = [{'id': 1, 'text': "King Mongkut's University of Technology Thonburi", 'parentId': -1},
+              {'id': 2, 'text': 'History', 'parentId': 1},
+              {'id': 3, 'text': 'established february 1960 department vocational', 'parentId': 2},
+              {'id': 4, 'text': 'Governance and organisation', 'parentId': 1},
+              {'id': 5, 'text': 'regalia great crown victory sword', 'parentId': 4},
+              {'id': 6, 'text': 'Faculties and Schools', 'parentId': 1},
+              {'id': 7, 'text': 'School of Architecture and Design', 'parentId': 6},
+              {'id': 8, 'text': 'school changed school architecture school', 'parentId': 7},
+              {'id': 9, 'text': 'kmutt following faculties schools', 'parentId': 6},
+              {'id': 10, 'text': 'KMUTT', 'parentId': 9}, {'id': 11, 'text': 'faculty engineering foe', 'parentId': 6},
+              {'id': 12, 'text': 'science fsci', 'parentId': 6},
+              {'id': 13, 'text': 'Faculty of Science', 'parentId': 12},
+              {'id': 14, 'text': 'Faculty of Science', 'parentId': 12},
+              {'id': 15, 'text': 'faculty industrial education technology fiet', 'parentId': 6},
+              {'id': 16, 'text': 'school liberal arts sola', 'parentId': 6},
+              {'id': 17, 'text': 'school information technology sit', 'parentId': 6},
+              {'id': 18, 'text': 'school architecture design soa', 'parentId': 6},
+              {'id': 19, 'text': 'school energy environment materials', 'parentId': 6},
+              {'id': 20, 'text': 'school bioresources technology sbt', 'parentId': 6},
+              {'id': 21, 'text': 'School of Bioresources and Technology', 'parentId': 20},
+              {'id': 22, 'text': 'graduate school energy environment jgsee', 'parentId': 6},
+              {'id': 23, 'text': 'Join Graduate School of Energy and Environment', 'parentId': 22},
+              {'id': 24, 'text': 'Join', 'parentId': 22},
+              {'id': 25, 'text': 'institute field robotics fibo', 'parentId': 6},
+              {'id': 26, 'text': 'Institute of Field Robotics', 'parentId': 25},
+              {'id': 27, 'text': 'graduate school management innovation gmi', 'parentId': 6},
+              {'id': 28, 'text': 'college multidisciplinary sciences', 'parentId': 6},
+              {'id': 29, 'text': 'College of Multidisciplinary Sciences', 'parentId': 28},
+              {'id': 30, 'text': 'Student life', 'parentId': 1},
+              {'id': 31, 'text': 'sports complex includes facilities gymnasium', 'parentId': 30},
+              {'id': 32, 'text': 'support mission university provide education', 'parentId': 30},
+              {'id': 33, 'text': 'information technology', 'parentId': 32},
+              {'id': 34, 'text': 'kmutt residence independent non profit', 'parentId': 30},
+              {'id': 35, 'text': 'student activities sports services sports', 'parentId': 30},
+              {'id': 36, 'text': 'Campuses', 'parentId': 1}, {'id': 37, 'text': 'Bangmod main campus', 'parentId': 36},
+              {'id': 38, 'text': 'area main campus 52 acres', 'parentId': 37},
+              {'id': 39, 'text': 'Bang Mot', 'parentId': 38},
+              {'id': 40, 'text': 'Bang Khun Thian Campus', 'parentId': 36},
+              {'id': 41, 'text': 'khun thian campus 80 acres', 'parentId': 40},
+              {'id': 42, 'text': 'Ratchaburi Campus', 'parentId': 36},
+              {'id': 43, 'text': 'bangmod campus bangkok 500 million', 'parentId': 42},
+              {'id': 44, 'text': 'Bangkok', 'parentId': 43},
+              {'id': 45, 'text': 'Main campus dormitories', 'parentId': 36},
+              {'id': 46, 'text': 'dormitory completed 130 million baht', 'parentId': 45},
+              {'id': 47, 'text': 'Transportation', 'parentId': 1},
+              {'id': 48, 'text': 'free bus service bangmod campus', 'parentId': 47},
+              {'id': 49, 'text': 'KMUTT', 'parentId': 48}, {'id': 50, 'text': 'KMUTT Library', 'parentId': 1},
+              {'id': 51, 'text': 'october 2000 changed kmutt library', 'parentId': 50},
+              {'id': 52, 'text': 'school seventh oldest university thailand', 'parentId': 1}]
 
-print(client.transform_intermediate_json_to_final(client.transform_mind_map_to_intermediate_json_data_structure(kmutt_dict)))
+# print(client.transform_mind_map_to_intermediate_json_data_structure(kmutt_dict))
+#
+# print(client.transform_intermediate_json_to_final(client.transform_mind_map_to_intermediate_json_data_structure(kmutt_dict)))
+t = {"King Mongkut's University of Technology Thonburi": {
+    '_paragraph': {'school seventh oldest university thailand': {}},
+    'History': {'_paragraph': {'established february 1960 department vocational': {}}},
+    'Governance and organisation': {'_paragraph': {'regalia great crown victory sword': {}}}, 'Faculties and Schools': {
+        '_paragraph': {'kmutt following faculties schools': {'KMUTT': {}}, 'faculty engineering foe': {},
+                       'science fsci': {'Faculty of Science': {}}, 'faculty industrial education technology fiet': {},
+                       'school liberal arts sola': {}, 'school information technology sit': {},
+                       'school architecture design soa': {}, 'school energy environment materials': {},
+                       'school bioresources technology sbt': {'School of Bioresources and Technology': {}},
+                       'graduate school energy environment jgsee': {
+                           'Join Graduate School of Energy and Environment': {}, 'Join': {}},
+                       'institute field robotics fibo': {'Institute of Field Robotics': {}},
+                       'graduate school management innovation gmi': {},
+                       'college multidisciplinary sciences': {'College of Multidisciplinary Sciences': {}}},
+        'School of Architecture and Design': {'_paragraph': {'school changed school architecture school': {}}}},
+    'Student life': {'_paragraph': {'sports complex includes facilities gymnasium': {},
+                                    'support mission university provide education': {'information technology': {}},
+                                    'kmutt residence independent non profit': {},
+                                    'student activities sports services sports': {}}},
+    'Campuses': {'Bangmod main campus': {'_paragraph': {'area main campus 52 acres': {'Bang Mot': {}}}},
+                 'Bang Khun Thian Campus': {'_paragraph': {'khun thian campus 80 acres': {}}},
+                 'Ratchaburi Campus': {'_paragraph': {'bangmod campus bangkok 500 million': {'Bangkok': {}}}},
+                 'Main campus dormitories': {'_paragraph': {'dormitory completed 130 million baht': {}}}},
+    'Transportation': {'_paragraph': {'free bus service bangmod campus': {'KMUTT': {}}}},
+    'KMUTT Library': {'_paragraph': {'october 2000 changed kmutt library': {}}}}}

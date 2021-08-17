@@ -26,6 +26,7 @@ class Client:
         Client.child_id_key_string = 'childId'
         Client.keywords_escape_character = 'keywords'
         Client.child_escape_character = '_child'
+        Client.current_id_key_string = 'current_id'
 
     @staticmethod
     def generate_mind_map_from_semi_structure_text(wiki_url):
@@ -81,43 +82,72 @@ class Client:
 
     @staticmethod
     def transform_original_text_to_mind_map(input_dictionary):
+        common_data = {
+            Client.current_id_key_string: 0
+        }
 
-        def helper_function(input_dict):
+        def get_node(_id, _text, _parent_id):
+            return {
+                Client.id_key_string: _id,
+                Client.text_key_string: _text,
+                Client.parent_id_key_string: _parent_id
+            }
+
+        def get_id(_common_data):
+            _common_data[Client.current_id_key_string] = _common_data[Client.current_id_key_string] + 1
+            return _common_data[Client.current_id_key_string]
+
+        def helper_function(input_dict, _common_data, _array_of_nodes, _parent_id):
             all_key = list(input_dict.keys())
             if len(all_key) == 1 and all_key[0] == Client.paragraph_escape_character:
+                this_paragraph_dictionary = dict()
                 result = list(
-                    map(lambda paragraph: Client.algorithm(paragraph, paragraph),
+                    map(lambda paragraph: Client.algorithm(paragraph, paragraph, this_paragraph_dictionary,
+                                                           _common_data, _array_of_nodes, _parent_id, get_id, get_node),
                         input_dict[Client.paragraph_escape_character]))
-                input_dict[Client.paragraph_escape_character] = list(
-                    filter(lambda paragraph_result: (paragraph_result is not None), result))
+                input_dict[Client.paragraph_escape_character] = this_paragraph_dictionary
             else:
                 for key in filter(lambda x: x != Client.paragraph_escape_character, all_key):
-                    helper_function(input_dict[key])
+                    current_node = get_node(get_id(common_data), key, _parent_id)
+                    _array_of_nodes.append(current_node)
+                    helper_function(input_dict[key], _common_data, _array_of_nodes, current_node[Client.id_key_string])
                 if Client.paragraph_escape_character in all_key:
+                    this_paragraph_dictionary = dict()
                     result = list(
-                        map(lambda paragraph: Client.algorithm(paragraph, paragraph),
+                        map(lambda paragraph: Client.algorithm(paragraph, paragraph, this_paragraph_dictionary,
+                                                               _common_data, _array_of_nodes, _parent_id, get_id,
+                                                               get_node),
                             input_dict[Client.paragraph_escape_character]))
-                    input_dict[Client.paragraph_escape_character] = list(filter(lambda x: (x is not None), result))
+                    input_dict[Client.paragraph_escape_character] = this_paragraph_dictionary
 
         topic_dict = input_dictionary.get(list(input_dictionary.keys())[0])
-        helper_function(topic_dict)
-        return input_dictionary
+        root_node = get_node(get_id(common_data), list(input_dictionary.keys())[0], -1)
+        array_of_nodes = [root_node]
+        helper_function(topic_dict, common_data, array_of_nodes, root_node[Client.id_key_string])
+        return array_of_nodes
 
     @staticmethod
-    def algorithm(original_text, curr_sentence):
+    def algorithm(original_text, curr_sentence, _this_paragraph_dictionary, _common_data, _array_of_nodes, _parent_id,
+                  _get_id, _get_node):
         min_sentence_threshold = 7
         summary = Client.summarize_model.predict(curr_sentence)
         doc = Client.spacy_model.predict(summary)
         sentences = list(doc.sents)
         if len(sentences) <= min_sentence_threshold:
             keys = Client.keybert_model.predict(curr_sentence)
-            all_keys_child = []
             if keys:
                 for key in keys:
+                    current_level_node = _get_node(_get_id(_common_data), key[0], _parent_id)
+                    _array_of_nodes.append(current_level_node)
+                    if key[0] not in list(_this_paragraph_dictionary.keys()):
+                        _this_paragraph_dictionary[key[0]] = dict()
                     result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                    key_map = {Client.keywords_escape_character: key, Client.child_escape_character: result_of_q}
-                    all_keys_child += [key_map]
-                return all_keys_child
+                    result_answer = list(map(lambda tuple_of_question_answer: tuple_of_question_answer[1], result_of_q))
+                    for ans in result_answer:
+                        _array_of_nodes.append(
+                            _get_node(_get_id(_common_data), ans, current_level_node[Client.id_key_string]))
+                        _this_paragraph_dictionary[key[0]][ans] = dict()
+                return
             else:
                 return
 
@@ -133,13 +163,20 @@ class Client:
             best_k, best_cluster = Client.clustering_model.predict(X, len(sentences), proximity_matrix)
             if np.all(best_cluster == best_cluster[0]):
                 keys = Client.keybert_model.predict(curr_sentence)
-                all_keys_child = []
                 if keys:
                     for key in keys:
+                        current_level_node = _get_node(_get_id(_common_data), key[0], _parent_id)
+                        _array_of_nodes.append(current_level_node)
+                        if key[0] not in list(_this_paragraph_dictionary.keys()):
+                            _this_paragraph_dictionary[key[0]] = dict()
                         result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                        key_map = {Client.keywords_escape_character: key, Client.child_escape_character: result_of_q}
-                        all_keys_child += [key_map]
-                    return all_keys_child
+                        result_answer = list(
+                            map(lambda tuple_of_question_answer: tuple_of_question_answer[1], result_of_q))
+                        for ans in result_answer:
+                            _array_of_nodes.append(
+                                _get_node(_get_id(_common_data), ans, current_level_node[Client.id_key_string]))
+                            _this_paragraph_dictionary[key[0]][ans] = dict()
+                    return
             return Client.algorithm(original_text, sentences.join('. '))
 
     @staticmethod
@@ -200,7 +237,7 @@ class Client:
                 {Client.id_key_string: node[Client.id_key_string], Client.text_key_string: node[Client.text_key_string]}
                 for node in intermediate_json],
             'edges': [{Client.parent_id_key_string: node[Client.parent_id_key_string],
-                     Client.child_id_key_string: node[Client.id_key_string]} for node in intermediate_json if
-                    node[Client.parent_id_key_string] != -1]
+                       Client.child_id_key_string: node[Client.id_key_string]} for node in intermediate_json if
+                      node[Client.parent_id_key_string] != -1]
         }
         return final_json
