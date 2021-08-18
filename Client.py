@@ -1,11 +1,11 @@
 from sklearn.metrics import pairwise_distances
-from InputPreparator import InputPreparator
-from ModelSummarizer import ModelSummarizer
-from ModelQA import ModelQA
-from ModelKeyBert import ModelKeyBert
-from ModelClustering import ModelClustering
-from ModelSpacy import ModelSpacy
-from WikiRepository import WikiRepository
+from utils.InputPreparator import InputPreparator
+from models.ModelSummarizer import ModelSummarizer
+from models.ModelQA import ModelQA
+from models.ModelKeyBert import ModelKeyBert
+from models.ModelClustering import ModelClustering
+from models.ModelSpacy import ModelSpacy
+from repos.WikiRepository import WikiRepository
 import numpy as np
 
 

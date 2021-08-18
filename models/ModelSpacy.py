@@ -1,6 +1,6 @@
 import spacy
 from typing import Any
-from ModelInterface import ModelInterface
+from models.ModelInterface import ModelInterface
 
 
 class ModelSpacy(ModelInterface):

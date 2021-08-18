@@ -1,5 +1,5 @@
 from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
-from ModelInterface import ModelInterface
+from models.ModelInterface import ModelInterface
 
 
 class ModelSummarizer(ModelInterface):

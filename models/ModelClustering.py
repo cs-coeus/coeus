@@ -1,7 +1,7 @@
 import gensim.downloader as api
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
-from ModelInterface import ModelInterface
+from models.ModelInterface import ModelInterface
 from typing import Any, Tuple
 
 

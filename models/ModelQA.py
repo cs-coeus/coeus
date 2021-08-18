@@ -1,5 +1,5 @@
-from transformers import pipeline, AutoTokenizer
-from ModelInterface import ModelInterface
+from transformers import pipeline
+from models.ModelInterface import ModelInterface
 from typing import Any, List, Tuple
 
 

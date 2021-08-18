@@ -1,5 +1,5 @@
 from keybert import KeyBERT
-from ModelInterface import ModelInterface
+from models.ModelInterface import ModelInterface
 
 
 class ModelKeyBert(ModelInterface):

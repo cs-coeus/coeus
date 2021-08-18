@@ -1,4 +1,4 @@
-from DataRepository import DataRepository
+from repos.DataRepository import DataRepository
 import requests
 from typing import Any, List
 
