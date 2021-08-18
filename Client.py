@@ -30,11 +30,11 @@ class Client:
 
     @staticmethod
     def generate_mind_map_from_semi_structure_text(wiki_url):
-        input_dictionary = Client.input_preparator.normalize_text_from_wikipedia(
+        input_array = Client.input_preparator.normalize_text_from_wikipedia(
             Client.wiki_repo.getData(wiki_url))
 
-        return Client.transform_original_text_to_mind_map(
-            Client.generate_original_text_dictionary_from_normalize_input(input_dictionary))
+        return Client.transform_intermediate_json_to_final(Client.transform_original_text_to_intermediate_json_mind_map(
+            Client.generate_original_text_dictionary_from_normalize_input(input_array)))
 
     @staticmethod
     def generate_mind_map_from_unstructured_text(title, paragraphs):
@@ -42,8 +42,8 @@ class Client:
             Client.paragraph_escape_character: [para.strip() for para in paragraphs.split("\n") if
                                                 len(para.strip()) > 0]
         }}
-        return Client.transform_original_text_to_mind_map(
-            input_dictionary)
+        return Client.transform_intermediate_json_to_final(Client.transform_original_text_to_intermediate_json_mind_map(
+            input_dictionary))
 
     @staticmethod
     def generate_original_text_dictionary_from_normalize_input(input_data):
@@ -81,7 +81,7 @@ class Client:
         return root
 
     @staticmethod
-    def transform_original_text_to_mind_map(input_dictionary):
+    def transform_original_text_to_intermediate_json_mind_map(input_dictionary):
         common_data = {
             Client.current_id_key_string: 0
         }
@@ -178,57 +178,6 @@ class Client:
                             _this_paragraph_dictionary[key[0]][ans] = dict()
                     return
             return Client.algorithm(original_text, sentences.join('. '))
-
-    @staticmethod
-    def transform_mind_map_to_intermediate_json_data_structure(mind_map_dictionary):
-        common_data = {
-            'current_id': 0
-        }
-        current_id_key_string = 'current_id'
-
-        def helper_function(_current_dictionary, _parent_id, _array_of_nodes):
-            all_key = list(_current_dictionary.keys())
-            if len(all_key) == 1 and all_key[0] == Client.paragraph_escape_character:
-                for para_key in _current_dictionary[all_key[0]]:
-                    for keyword in para_key:
-                        _array_of_nodes.append({
-                            Client.id_key_string: common_data[current_id_key_string],
-                            Client.text_key_string: keyword[Client.keywords_escape_character][0],
-                            Client.parent_id_key_string: _parent_id
-                        })
-                        parent_id_current_level = common_data[current_id_key_string]
-                        common_data[current_id_key_string] = common_data[current_id_key_string] + 1
-                        if len(keyword[Client.child_escape_character]) > 0:
-                            for child in keyword[Client.child_escape_character]:
-                                _array_of_nodes.append({
-                                    Client.id_key_string: common_data[current_id_key_string],
-                                    Client.text_key_string: child[1],
-                                    Client.parent_id_key_string: parent_id_current_level
-                                })
-                                common_data[current_id_key_string] = common_data[current_id_key_string] + 1
-
-            else:
-                for key in filter(lambda x: x != Client.paragraph_escape_character, all_key):
-                    _array_of_nodes.append({
-                        Client.id_key_string: common_data[current_id_key_string],
-                        Client.text_key_string: key,
-                        Client.parent_id_key_string: _parent_id
-                    })
-                    parent_id_current_level = common_data[current_id_key_string]
-                    common_data[current_id_key_string] = common_data[current_id_key_string] + 1
-
-                    helper_function(_current_dictionary[key], parent_id_current_level, _array_of_nodes)
-
-        array_of_nodes = [{
-            Client.id_key_string: common_data[current_id_key_string],
-            Client.text_key_string: list(mind_map_dictionary.keys())[0],
-            Client.parent_id_key_string: -1
-        }]
-        parent_id = common_data[current_id_key_string]
-        common_data[current_id_key_string] = common_data[current_id_key_string] + 1
-        current_dictionary = mind_map_dictionary.get(list(mind_map_dictionary.keys())[0])
-        helper_function(current_dictionary, parent_id, array_of_nodes)
-        return array_of_nodes
 
     @staticmethod
     def transform_intermediate_json_to_final(intermediate_json):
