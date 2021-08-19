@@ -10,7 +10,7 @@ class InputPreparator:
         InputPreparator.stop_words = stopwords.words('english')
 
     @staticmethod
-    def normalize_text_from_wikipedia(text):
+    def normalize_wikipedia_data(text):
         lines = text.split('\n')
         count = 0
         current_text = []

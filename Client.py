@@ -5,7 +5,7 @@ from models.ModelQA import ModelQA
 from models.ModelKeyBert import ModelKeyBert
 from models.ModelClustering import ModelClustering
 from models.ModelSpacy import ModelSpacy
-from repos.WikiRepository import WikiRepository
+from repositories.WikipediaRepository import WikipediaRepository
 import numpy as np
 
 
@@ -18,37 +18,37 @@ class Client:
         Client.keybert_model = ModelKeyBert()
         Client.clustering_model = ModelClustering()
         Client.spacy_model = ModelSpacy()
-        Client.wiki_repo = WikiRepository()
+        Client.wikipedia_repository = WikipediaRepository()
         Client.paragraph_escape_character = '_paragraph'
-        Client.id_key_string = 'id'
-        Client.text_key_string = 'text'
-        Client.parent_id_key_string = 'parentId'
-        Client.child_id_key_string = 'childId'
-        Client.keywords_escape_character = 'keywords'
-        Client.child_escape_character = '_child'
-        Client.current_id_key_string = 'current_id'
+        Client.ID_KEY_STRING = 'id'
+        Client.TEXT_KEY_STRING = 'text'
+        Client.PARENT_ID_KEY_STRING = 'parentId'
+        Client.CHILD_ID_KEY_STRING = 'childId'
+        Client.KEYWORDS_ESCAPE_CHARACTER = 'keywords'
+        Client.CURRENT_ID_KEY_STRING = 'current_id'
 
     @staticmethod
-    def generate_mind_map_from_semi_structure_text(wiki_url):
-        input_array = Client.input_preparator.normalize_text_from_wikipedia(
-            Client.wiki_repo.getData(wiki_url))
+    def generate_mind_map_from_semi_structure_text(wikipedia_article_title_url):
+        wikipedia_text = Client.wikipedia_repository.getData(wikipedia_article_title_url)
+        input_array = Client.input_preparator.normalize_wikipedia_data(wikipedia_text)
 
-        return Client.transform_intermediate_json_to_final(Client.transform_original_text_to_intermediate_json_mind_map(
-            Client.generate_original_text_dictionary_from_normalize_input(input_array)))
+        return Client.convert_to_final_json(Client.convert_to_intermediate_json(
+            Client.generate_original_text_dictionary_from_normalized_input(input_array)))
 
     @staticmethod
     def generate_mind_map_from_unstructured_text(title, paragraphs):
         input_dictionary = {title: {
-            Client.paragraph_escape_character: [para.strip() for para in paragraphs.split("\n") if
-                                                len(para.strip()) > 0]
+            Client.paragraph_escape_character: [paragraph.strip() for paragraph in paragraphs.split('\n') if
+                                                len(paragraph.strip()) > 0]
         }}
-        return Client.transform_intermediate_json_to_final(Client.transform_original_text_to_intermediate_json_mind_map(
+        return Client.convert_to_final_json(Client.convert_to_intermediate_json(
             input_dictionary))
 
     @staticmethod
-    def generate_original_text_dictionary_from_normalize_input(input_data):
+    def generate_original_text_dictionary_from_normalized_input(input_data):
 
-        def helper_function(article_path, dictionary, is_topic=True, current_text_in_paragraph=[]):
+        def recursive_generate_dictionary_from_paragraphs_array(article_path, dictionary, is_topic=True,
+                                                                current_text_in_paragraph=[]):
             if len(article_path) == 1:
                 if is_topic:
                     dictionary[article_path[0]] = dict()
@@ -56,7 +56,8 @@ class Client:
                     dictionary[article_path[0]][Client.paragraph_escape_character] = current_text_in_paragraph
             elif len(article_path) > 1:
                 curr_dict = dictionary.get(article_path[0])
-                helper_function(article_path[1:], curr_dict, is_topic, current_text_in_paragraph)
+                recursive_generate_dictionary_from_paragraphs_array(article_path[1:], curr_dict, is_topic,
+                                                                    current_text_in_paragraph)
 
         topic_escape_char = '='
         root = dict()
@@ -68,72 +69,74 @@ class Client:
                 new_topic = line.replace(topic_escape_char, '').strip()
                 if last_level == new_level:
                     curr_path = curr_path[:-1] + [new_topic]
-                    helper_function(curr_path, root)
+                    recursive_generate_dictionary_from_paragraphs_array(curr_path, root)
                 elif last_level < new_level:
                     curr_path += [new_topic]
-                    helper_function(curr_path, root)
+                    recursive_generate_dictionary_from_paragraphs_array(curr_path, root)
                 elif last_level > new_level:
                     curr_path = curr_path[:int(new_level) - 1] + [new_topic]
-                    helper_function(curr_path, root)
+                    recursive_generate_dictionary_from_paragraphs_array(curr_path, root)
                 last_level = new_level
             else:
-                helper_function(curr_path, root, False, line)
+                recursive_generate_dictionary_from_paragraphs_array(curr_path, root, False, line)
         return root
 
     @staticmethod
-    def transform_original_text_to_intermediate_json_mind_map(input_dictionary):
+    def convert_to_intermediate_json(original_text_dict):
         common_data = {
-            Client.current_id_key_string: 0
+            Client.CURRENT_ID_KEY_STRING: 0
         }
 
-        def get_node(_id, _text, _parent_id):
+        def generate_node(_id, _text, _parent_id):
             return {
-                Client.id_key_string: _id,
-                Client.text_key_string: _text,
-                Client.parent_id_key_string: _parent_id
+                Client.ID_KEY_STRING: _id,
+                Client.TEXT_KEY_STRING: _text,
+                Client.PARENT_ID_KEY_STRING: _parent_id
             }
 
-        def get_id(_common_data):
-            _common_data[Client.current_id_key_string] = _common_data[Client.current_id_key_string] + 1
-            return _common_data[Client.current_id_key_string]
+        def get_next_id(_common_data):
+            _common_data[Client.CURRENT_ID_KEY_STRING] = _common_data[Client.CURRENT_ID_KEY_STRING] + 1
+            return _common_data[Client.CURRENT_ID_KEY_STRING]
 
-        def helper_function(input_dict, _common_data, _array_of_nodes, _parent_id):
+        def recursive_apply_algorithm_to_paragraph(input_dict, _common_data, _array_of_nodes, _parent_id):
             all_key = list(input_dict.keys())
             if len(all_key) == 1 and all_key[0] == Client.paragraph_escape_character:
-                this_paragraph_dictionary = dict()
+                current_paragraph_dictionary = dict()
                 result = list(
-                    map(lambda paragraph: Client.algorithm(paragraph, paragraph, this_paragraph_dictionary,
-                                                           _common_data, _array_of_nodes, _parent_id, get_id, get_node),
+                    map(lambda paragraph: Client.algorithm(paragraph, paragraph, current_paragraph_dictionary,
+                                                           _common_data, _array_of_nodes, _parent_id, get_next_id,
+                                                           generate_node),
                         input_dict[Client.paragraph_escape_character]))
-                input_dict[Client.paragraph_escape_character] = this_paragraph_dictionary
+                input_dict[Client.paragraph_escape_character] = current_paragraph_dictionary
             else:
                 for key in filter(lambda x: x != Client.paragraph_escape_character, all_key):
-                    current_node = get_node(get_id(common_data), key, _parent_id)
+                    current_node = generate_node(get_next_id(common_data), key, _parent_id)
                     _array_of_nodes.append(current_node)
-                    helper_function(input_dict[key], _common_data, _array_of_nodes, current_node[Client.id_key_string])
+                    recursive_apply_algorithm_to_paragraph(input_dict[key], _common_data, _array_of_nodes,
+                                                           current_node[Client.ID_KEY_STRING])
                 if Client.paragraph_escape_character in all_key:
-                    this_paragraph_dictionary = dict()
+                    current_paragraph_dictionary = dict()
                     result = list(
-                        map(lambda paragraph: Client.algorithm(paragraph, paragraph, this_paragraph_dictionary,
-                                                               _common_data, _array_of_nodes, _parent_id, get_id,
-                                                               get_node),
+                        map(lambda paragraph: Client.algorithm(paragraph, paragraph, current_paragraph_dictionary,
+                                                               _common_data, _array_of_nodes, _parent_id, get_next_id,
+                                                               generate_node),
                             input_dict[Client.paragraph_escape_character]))
-                    input_dict[Client.paragraph_escape_character] = this_paragraph_dictionary
+                    input_dict[Client.paragraph_escape_character] = current_paragraph_dictionary
 
-        topic_dict = input_dictionary.get(list(input_dictionary.keys())[0])
-        root_node = get_node(get_id(common_data), list(input_dictionary.keys())[0], -1)
+        topic_dict = original_text_dict.get(list(original_text_dict.keys())[0])
+        root_node = generate_node(get_next_id(common_data), list(original_text_dict.keys())[0], -1)
         array_of_nodes = [root_node]
-        helper_function(topic_dict, common_data, array_of_nodes, root_node[Client.id_key_string])
+        recursive_apply_algorithm_to_paragraph(topic_dict, common_data, array_of_nodes, root_node[Client.ID_KEY_STRING])
         return array_of_nodes
 
     @staticmethod
     def algorithm(original_text, curr_sentence, _this_paragraph_dictionary, _common_data, _array_of_nodes, _parent_id,
                   _get_id, _get_node):
-        min_sentence_threshold = 7
+        MIN_SENTENCE_THRESHOLD = 7
         summary = Client.summarize_model.predict(curr_sentence)
         doc = Client.spacy_model.predict(summary)
         sentences = list(doc.sents)
-        if len(sentences) <= min_sentence_threshold:
+        if len(sentences) <= MIN_SENTENCE_THRESHOLD:
             keys = Client.keybert_model.predict(curr_sentence)
             if keys:
                 for key in keys:
@@ -141,12 +144,14 @@ class Client:
                     _array_of_nodes.append(current_level_node)
                     if key[0] not in list(_this_paragraph_dictionary.keys()):
                         _this_paragraph_dictionary[key[0]] = dict()
-                    result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
-                    result_answer = list(map(lambda tuple_of_question_answer: tuple_of_question_answer[1], result_of_q))
-                    for ans in result_answer:
+                    questions = ['What is ', 'Where is ']
+                    qa_model_result = Client.qa_model.predict((original_text, key, questions))
+                    result_answer = list(
+                        map(lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
+                    for answer in result_answer:
                         _array_of_nodes.append(
-                            _get_node(_get_id(_common_data), ans, current_level_node[Client.id_key_string]))
-                        _this_paragraph_dictionary[key[0]][ans] = dict()
+                            _get_node(_get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
+                        _this_paragraph_dictionary[key[0]][answer] = dict()
                 return
             else:
                 return
@@ -169,24 +174,33 @@ class Client:
                         _array_of_nodes.append(current_level_node)
                         if key[0] not in list(_this_paragraph_dictionary.keys()):
                             _this_paragraph_dictionary[key[0]] = dict()
-                        result_of_q = Client.qa_model.predict((original_text, key, ['What is ', 'Where is ']))
+                        questions = ['What is ', 'Where is ']
+                        qa_model_result = Client.qa_model.predict((original_text, key, questions))
                         result_answer = list(
-                            map(lambda tuple_of_question_answer: tuple_of_question_answer[1], result_of_q))
-                        for ans in result_answer:
+                            map(lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
+                        for answer in result_answer:
                             _array_of_nodes.append(
-                                _get_node(_get_id(_common_data), ans, current_level_node[Client.id_key_string]))
-                            _this_paragraph_dictionary[key[0]][ans] = dict()
+                                _get_node(_get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
+                            _this_paragraph_dictionary[key[0]][answer] = dict()
                     return
             return Client.algorithm(original_text, sentences.join('. '))
 
     @staticmethod
-    def transform_intermediate_json_to_final(intermediate_json):
+    def convert_to_final_json(intermediate_json):
         final_json = {
             'nodes': [
-                {Client.id_key_string: node[Client.id_key_string], Client.text_key_string: node[Client.text_key_string]}
-                for node in intermediate_json],
-            'edges': [{Client.parent_id_key_string: node[Client.parent_id_key_string],
-                       Client.child_id_key_string: node[Client.id_key_string]} for node in intermediate_json if
-                      node[Client.parent_id_key_string] != -1]
+                {
+                    Client.ID_KEY_STRING: node[Client.ID_KEY_STRING],
+                    Client.TEXT_KEY_STRING: node[Client.TEXT_KEY_STRING]
+                }
+                for node in intermediate_json
+            ],
+            'edges': [
+                {
+                    Client.PARENT_ID_KEY_STRING: node[Client.PARENT_ID_KEY_STRING],
+                    Client.CHILD_ID_KEY_STRING: node[Client.ID_KEY_STRING]
+                }
+                for node in intermediate_json if node[Client.PARENT_ID_KEY_STRING] != -1
+            ]
         }
         return final_json

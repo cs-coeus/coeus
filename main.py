@@ -1,7 +1,7 @@
 from Client import Client
 from datetime import datetime
 
-from repos.WikiRepository import WikiRepository
+from repositories.WikipediaRepository import WikipediaRepository
 from utils.InputPreparator import InputPreparator
 
 test_text = """King Mongkut's University of Technology Thonburi can trace its origin to the Thonburi Technical College (TTC) which was established on 4 February 1960, by the Department of Vocational Education, Ministry of Education. TTC had the mission of training technicians, technical instructors, and technologists. By virtue of the Technology Act, enacted 21 April 1971, three technical institutes are under the Department of Vocational Education: Thonburi Technical Institute (TTI), North Bangkok Technical Institute, and Nonthaburi Telecommunication Institute. They were combined to form one degree-granting institution under the name King Mongkut's Institute of Technology (KMIT) spread across three campuses. TTC thus became KMIT Thonburi campus. In 1974, KMIT was transferred from the Ministry of Education to the Ministry of University Affairs.A new technology act was enacted 19 February 1986: the three campuses of KMIT became three autonomous institutes, each having university status. KMIT Thonburi campus became King Mongkut's Institute of Technology Thonburi (KMITT)."""

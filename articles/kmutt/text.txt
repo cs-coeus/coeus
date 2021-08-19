@@ -1,11 +1,4 @@
-from repos.DataRepository import DataRepository
-import requests
-from typing import Any, List
-
-
-class MockWikiRepo(DataRepository):
-    def __init__(self):
-        MockWikiRepo.mock_data = """= King Mongkut's University of Technology Thonburi =
+= King Mongkut's University of Technology Thonburi =
 King Mongkut's University of Technology Thonburi (KMUTT, Thai: มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าธนบุรี; RTGS: maha witthayalai theknoloyi phrachomklao thonburi ) or colloquially "Bangmod" (Thai: บางมด; RTGS: bang mot ) is an engineering and technology university in Thailand, focusing on teaching and research. It is one of nine national research universities (NRU) in Thailand. It is in Bang Mot Sub-district, Thung Khru District, Bangkok. It was founded on 18 April 1960, making it the third oldest engineering school and seventh oldest university in Thailand.
 
 
@@ -73,8 +66,4 @@ KMUTT provides a free bus service between the Bangmod campus and the Bang Khun T
 The "KMUTT Library and Information Center" was founded on 5 May 1988. On 19 October 2000 its name was changed to "KMUTT Library".
 
 
-== References =="""
-
-    @staticmethod
-    def getData(input: str) -> str:
-        return MockWikiRepo.mock_data
+== References ==
