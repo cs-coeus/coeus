@@ -18,8 +18,8 @@ class ModelClustering(ModelInterface):
         best_score = -100
         min_cluster = 2
         for n in range(min_cluster, total):
-            algorithm = AgglomerativeClustering(n_clusters=n, affinity='precomputed',
-                                                linkage='average')
+            algorithm = AgglomerativeClustering(
+                n_clusters=n, affinity='precomputed', linkage='average')
             clusters = algorithm.fit_predict(proximity_matrix)
             score = silhouette_score(X, algorithm.labels_)
             if score > best_score:

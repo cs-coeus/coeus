@@ -13,8 +13,13 @@ class ModelKeyBert(ModelInterface):
 
     @staticmethod
     def key_bert(text):
-        keys = ModelKeyBert.model.extract_keywords(text, keyphrase_ngram_range=(
-            ModelKeyBert.MIN_NGRAM, ModelKeyBert.MAX_NGRAM), stop_words='english', top_n=ModelKeyBert.TOP_N)
+        keys = ModelKeyBert.model.extract_keywords(
+            text,
+            keyphrase_ngram_range=(
+                ModelKeyBert.MIN_NGRAM,
+                ModelKeyBert.MAX_NGRAM),
+            stop_words='english',
+            top_n=ModelKeyBert.TOP_N)
         return [key for key in keys if key[1] > ModelKeyBert.KEYWORD_THRESHOLD]
 
     @staticmethod

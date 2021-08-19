@@ -124,7 +124,10 @@ class ClientTestCase(unittest.TestCase):
             """King_Mongkut's_University_of_Technology_Thonburi""")
         expected_string = str(expected_result_output)
         actual_string = str(actual_result)
-        self.assertEqual(expected_string, actual_string, 'structured: kmutt final output is not same as expected')
+        self.assertEqual(
+            expected_string,
+            actual_string,
+            'structured: kmutt final output is not same as expected')
 
     def test_generate_mind_map_from_unstructured_text(self):
         expected_result_output = {
@@ -249,12 +252,16 @@ class ClientTestCase(unittest.TestCase):
         text_path = os.path.join(user_path, PATH_TO_MOCK_DATA, PATH_TO_TEXT)
         topic_file = open(topic_path, 'r')
         text_file = open(text_path, 'r')
-        actual_result = Client.generate_mind_map_from_unstructured_text(topic_file.read(), text_file.read())
+        actual_result = Client.generate_mind_map_from_unstructured_text(
+            topic_file.read(), text_file.read())
         text_file.close()
         topic_file.close()
         expected_string = str(expected_result_output)
         actual_string = str(actual_result)
-        self.assertEqual(expected_string, actual_string, 'unstructured :apple final output is not same as expected')
+        self.assertEqual(
+            expected_string,
+            actual_string,
+            'unstructured :apple final output is not same as expected')
 
 
 if __name__ == '__main__':

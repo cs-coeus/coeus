@@ -56,7 +56,8 @@ test_text = """King Mongkut's University of Technology Thonburi can trace its or
 # print("""end""")
 client = Client()
 present_date_with_time = datetime.now()
-print(Client.generate_mind_map_from_semi_structure_text("""King_Mongkut's_University_of_Technology_Thonburi"""))
+print(Client.generate_mind_map_from_semi_structure_text(
+    """King_Mongkut's_University_of_Technology_Thonburi"""))
 present_date_with_time_end = datetime.now()
 print('total,', present_date_with_time_end - present_date_with_time)
 #

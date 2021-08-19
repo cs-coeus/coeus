@@ -7,4 +7,4 @@ coeus project
     
 ### Contribution
     1.install pycodestyle and autopep8 `pip install --upgrade pycodestyle autopep8`
-    2.run `autopep8 --in-place --aggressive --aggressive --recursive . `
+    2.run `autopep8 --in-place --aggressive --aggressive --exclude=venv --recursive .`

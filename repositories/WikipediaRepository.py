@@ -9,9 +9,12 @@ class WikipediaRepository(DataRepository):
 
     @staticmethod
     def get_text_from_wiki(title):
-        page = requests.get(WikipediaRepository.base_url % title).json()['query']['pages']
+        page = requests.get(
+            WikipediaRepository.base_url %
+            title).json()['query']['pages']
         if len(page.keys()) == 1:
-            return '= ' + title.replace('_', ' ') + ' =\n' + next(iter(page.values()))['extract']
+            return '= ' + title.replace('_', ' ') + \
+                ' =\n' + next(iter(page.values()))['extract']
         raise Exception('No article found')
 
     @staticmethod

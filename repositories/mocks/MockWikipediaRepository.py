@@ -9,7 +9,7 @@ class MockWikipediaRepository(DataRepository):
         PATH_TO_MOCK_DATA = 'coeus/articles/kmutt/text.txt'
         cwd = os.getcwd()
         user_path = cwd.split('coeus')[0]
-        data_path = os.path.join(user_path,PATH_TO_MOCK_DATA)
+        data_path = os.path.join(user_path, PATH_TO_MOCK_DATA)
         file = open(data_path, 'r')
         MockWikipediaRepository.mock_data = file.read()
         file.close()
