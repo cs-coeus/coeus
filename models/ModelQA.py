@@ -1,5 +1,5 @@
-from transformers import pipeline, AutoTokenizer
-from ModelInterface import ModelInterface
+from transformers import pipeline
+from models.ModelInterface import ModelInterface
 from typing import Any, List, Tuple
 
 
@@ -7,7 +7,7 @@ class ModelQA(ModelInterface):
 
     def __init__(self):
         ModelQA.qa = pipeline('question-answering')
-        ModelQA.answer_threshold = 0.8
+        ModelQA.ANSWER_THRESHOLD = 0.8
 
     @staticmethod
     def QA(original, keyword, questions):
@@ -15,7 +15,7 @@ class ModelQA(ModelInterface):
         for question in questions:
             q = question + keyword[0] + ' ?'
             result = ModelQA.qa(question=q, context=original)
-            if round(result['score'], 4) > ModelQA.answer_threshold:
+            if round(result['score'], 4) > ModelQA.ANSWER_THRESHOLD:
                 ans_of_key += [(q, result['answer'])]
         return ans_of_key
 

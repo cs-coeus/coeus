@@ -10,7 +10,7 @@ class InputPreparator:
         InputPreparator.stop_words = stopwords.words('english')
 
     @staticmethod
-    def normalize_text_from_wikipedia(text):
+    def normalize_wikipedia_data(text):
         lines = text.split('\n')
         count = 0
         current_text = []
@@ -37,4 +37,5 @@ class InputPreparator:
 
     @staticmethod
     def preprocess_senetence_to_arr(sentence):
-        return [w for w in sentence.lower().split() if w not in InputPreparator.stop_words]
+        return [w for w in sentence.lower().split(
+        ) if w not in InputPreparator.stop_words]
