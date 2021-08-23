@@ -1,14 +1,17 @@
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from models.ModelInterface import ModelInterface
+import torch
+
 
 
 class ModelSummarizer(ModelInterface):
 
     def __init__(self, model_name='t5-base', framework='pt'):
+        ModelSummarizer.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         ModelSummarizer.framework = framework
         ModelSummarizer.tokenizer = AutoTokenizer.from_pretrained(model_name)
         ModelSummarizer.model = AutoModelForSeq2SeqLM.from_pretrained(
-            "t5-base")
+            "t5-base").to(ModelSummarizer.device)
         ModelSummarizer.MIN_TOKENS = 14
         ModelSummarizer.MIN_LENGTH = 40
         ModelSummarizer.MAX_TOKENS = 512
@@ -21,7 +24,7 @@ class ModelSummarizer(ModelInterface):
             'summarize: ' + text,
             return_tensors=ModelSummarizer.framework,
             max_length=ModelSummarizer.MAX_TOKENS,
-            truncation=True)
+            truncation=True).to(ModelSummarizer.device)
         length = inputs.shape[1]
         if length < ModelSummarizer.MIN_TOKENS:
             return text

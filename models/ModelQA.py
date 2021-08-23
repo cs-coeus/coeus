@@ -1,12 +1,14 @@
 from transformers import pipeline
 from models.ModelInterface import ModelInterface
 from typing import Any, List, Tuple
+import torch
 
 
 class ModelQA(ModelInterface):
 
-    def __init__(self):
-        ModelQA.qa = pipeline('question-answering')
+    def __init__(self,framework='pt'):
+        ModelQA.device = torch.cuda.current_device() if torch.cuda.is_available() else -1
+        ModelQA.qa = pipeline('question-answering',device=ModelQA.device, framework=framework)
         ModelQA.ANSWER_THRESHOLD = 0.8
 
     @staticmethod
