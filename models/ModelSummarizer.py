@@ -37,7 +37,9 @@ class ModelSummarizer(ModelInterface):
             length_penalty=ModelSummarizer.LENGTH_PENALTY,
             num_beams=ModelSummarizer.NUM_BEAMS,
             early_stopping=True)
-        return ModelSummarizer.tokenizer.decode(output[0])
+        decoded_text = ModelSummarizer.tokenizer.decode(output[0])
+        result = decoded_text.replace('<pad>', '').replace('</s>', '')
+        return result
 
     @staticmethod
     def predict(input: str) -> str:
