@@ -25,3 +25,10 @@ class ModelSpacy(ModelInterface):
         for token in spacy_doc:
             dictionary[token] = token.pos_
         return dictionary
+
+    @staticmethod
+    def convert_spacy_object_to_noun_chunk_array(spacy_doc):
+        array = []
+        for chunk in spacy_doc.noun_chunks:
+            array.append(chunk.text)
+        return array
