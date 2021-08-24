@@ -3,7 +3,6 @@ from models.ModelInterface import ModelInterface
 import torch
 
 
-
 class ModelSummarizer(ModelInterface):
 
     def __init__(self, model_name='t5-base', framework='pt'):
