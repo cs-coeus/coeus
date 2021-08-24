@@ -6,6 +6,7 @@ from models.ModelKeyBert import ModelKeyBert
 from models.ModelClustering import ModelClustering
 from models.ModelSpacy import ModelSpacy
 from repositories.WikipediaRepository import WikipediaRepository
+from functools import reduce
 import numpy as np
 
 
@@ -35,8 +36,20 @@ class Client:
         input_array = Client.input_preparator.normalize_wikipedia_data(
             wikipedia_text)
 
-        return Client.convert_to_final_json(Client.convert_to_intermediate_json(
-            Client.generate_original_text_dictionary_from_normalized_input(input_array)))
+        paragraph_array_of_array = filter(
+            lambda array_of_paragraph: not isinstance(
+                array_of_paragraph, str), input_array)
+        paragraph_text_array = ['\n'.join(paragraph)
+                                for paragraph in paragraph_array_of_array]
+        full_text = reduce(
+            lambda body_1,
+            body_2: body_1 + '\n' + body_2,
+            paragraph_text_array)
+
+        return Client.convert_to_final_json(
+            Client.convert_to_intermediate_json(
+                Client.generate_original_text_dictionary_from_normalized_input(input_array),
+                full_text))
 
     @staticmethod
     def generate_mind_map_from_unstructured_text(title, paragraphs):
@@ -46,7 +59,7 @@ class Client:
                     paragraph.strip() for paragraph in paragraphs.split('\n') if len(
                         paragraph.strip()) > 0]}}
         return Client.convert_to_final_json(
-            Client.convert_to_intermediate_json(input_dictionary))
+            Client.convert_to_intermediate_json(input_dictionary, paragraphs))
 
     @staticmethod
     def generate_original_text_dictionary_from_normalized_input(input_data):
@@ -91,7 +104,7 @@ class Client:
         return root
 
     @staticmethod
-    def convert_to_intermediate_json(original_text_dict):
+    def convert_to_intermediate_json(original_text_dict, full_text):
         common_data = {
             Client.CURRENT_ID_KEY_STRING: 0
         }
@@ -114,7 +127,8 @@ class Client:
                     all_key) == 1 and all_key[0] == Client.paragraph_escape_character:
                 current_paragraph_dictionary = dict()
                 result = list(
-                    map(lambda paragraph: Client.algorithm(paragraph, paragraph, current_paragraph_dictionary,
+                    map(lambda paragraph: Client.algorithm(paragraph, paragraph, full_text,
+                                                           current_paragraph_dictionary,
                                                            _common_data, _array_of_nodes, _parent_id, get_next_id,
                                                            generate_node),
                         input_dict[Client.paragraph_escape_character]))
@@ -131,7 +145,8 @@ class Client:
                 if Client.paragraph_escape_character in all_key:
                     current_paragraph_dictionary = dict()
                     result = list(
-                        map(lambda paragraph: Client.algorithm(paragraph, paragraph, current_paragraph_dictionary,
+                        map(lambda paragraph: Client.algorithm(paragraph, paragraph, full_text,
+                                                               current_paragraph_dictionary,
                                                                _common_data, _array_of_nodes, _parent_id, get_next_id,
                                                                generate_node),
                             input_dict[Client.paragraph_escape_character]))
@@ -150,6 +165,7 @@ class Client:
     def algorithm(
             original_text,
             curr_sentence,
+            full_text,
             _this_paragraph_dictionary,
             _common_data,
             _array_of_nodes,
@@ -171,7 +187,7 @@ class Client:
                         _this_paragraph_dictionary[key[0]] = dict()
                     questions = ['What is ', 'Where is ']
                     qa_model_result = Client.qa_model.predict(
-                        (original_text, key, questions))
+                        (full_text, key, questions))
                     result_answer = list(map(
                         lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
                     for answer in result_answer:
@@ -205,7 +221,7 @@ class Client:
                             _this_paragraph_dictionary[key[0]] = dict()
                         questions = ['What is ', 'Where is ']
                         qa_model_result = Client.qa_model.predict(
-                            (original_text, key, questions))
+                            (full_text, key, questions))
                         result_answer = list(map(
                             lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
                         for answer in result_answer:
@@ -213,7 +229,16 @@ class Client:
                                 _get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
                             _this_paragraph_dictionary[key[0]][answer] = dict()
                     return
-            return Client.algorithm(original_text, sentences.join('. '))
+            return Client.algorithm(
+                original_text,
+                sentences.join('. '),
+                full_text,
+                _this_paragraph_dictionary,
+                _common_data,
+                _array_of_nodes,
+                _parent_id,
+                _get_id,
+                _get_node)
 
     @staticmethod
     def convert_to_final_json(intermediate_json):
