@@ -18,3 +18,10 @@ class ModelSpacy(ModelInterface):
     @staticmethod
     def predict(input: str) -> Any:
         return ModelSpacy.get_spacy_instance(input)
+
+    @staticmethod
+    def convert_spacy_object_to_word_part_of_speech_dictionary(spacy_doc):
+        dictionary = dict()
+        for token in spacy_doc:
+            dictionary[token] = token.pos_
+        return dictionary
