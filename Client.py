@@ -2,7 +2,6 @@ from sklearn.metrics import pairwise_distances
 from utils.InputPreparator import InputPreparator
 from models.ModelSummarizer import ModelSummarizer
 from models.ModelQA import ModelQA
-from models.ModelKeyBert import ModelKeyBert
 from models.ModelClustering import ModelClustering
 from models.ModelSpacy import ModelSpacy
 from repositories.WikipediaRepository import WikipediaRepository
@@ -16,7 +15,6 @@ class Client:
         Client.input_preparator = InputPreparator()
         Client.summarize_model = ModelSummarizer()
         Client.qa_model = ModelQA()
-        Client.keybert_model = ModelKeyBert()
         Client.clustering_model = ModelClustering()
         Client.spacy_model = ModelSpacy()
         Client.wikipedia_repository = WikipediaRepository()

@@ -1,5 +1,4 @@
 transformers==4.9.2
-keybert==0.4.0
 gensim==4.0.1
 numpy==1.19.5
 nltk==3.6.2
