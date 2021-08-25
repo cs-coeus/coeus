@@ -174,30 +174,27 @@ class Client:
             _get_node):
         MIN_SENTENCE_THRESHOLD = 7
         summary = Client.summarize_model.predict(curr_sentence)
-        doc = Client.spacy_model.predict(summary)
-        sentences = list(doc.sents)
+        spacy_doc_from_summary = Client.spacy_model.predict(summary)
+        sentences = list(spacy_doc_from_summary.sents)
         if len(sentences) <= MIN_SENTENCE_THRESHOLD:
-            keys = Client.keybert_model.predict(curr_sentence)
-            if keys:
-                for key in keys:
-                    current_level_node = _get_node(
-                        _get_id(_common_data), key[0], _parent_id)
-                    _array_of_nodes.append(current_level_node)
-                    if key[0] not in list(_this_paragraph_dictionary.keys()):
-                        _this_paragraph_dictionary[key[0]] = dict()
-                    questions = ['What is ', 'Where is ']
-                    qa_model_result = Client.qa_model.predict(
-                        (full_text, key, questions))
-                    result_answer = list(map(
-                        lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
-                    for answer in result_answer:
-                        _array_of_nodes.append(_get_node(
-                            _get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
-                        _this_paragraph_dictionary[key[0]][answer] = dict()
-                return
-            else:
-                return
-
+            noun_chunk_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_array(
+                spacy_doc_from_summary)
+            for noun in noun_chunk_array:
+                current_level_node = _get_node(
+                    _get_id(_common_data), noun, _parent_id)
+                _array_of_nodes.append(current_level_node)
+                if noun not in list(_this_paragraph_dictionary.keys()):
+                    _this_paragraph_dictionary[noun] = dict()
+                questions = ['What is ', 'Where is ']
+                qa_model_result = Client.qa_model.predict(
+                    (original_text, noun, questions))
+                result_answer = list(map(
+                    lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
+                for answer in result_answer:
+                    _array_of_nodes.append(_get_node(
+                        _get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
+                    _this_paragraph_dictionary[noun][answer] = dict()
+            return
         else:
             data = [sent.text for sent in sentences]
             X = np.arange(len(data)).reshape(-1, 1)
@@ -210,25 +207,24 @@ class Client:
             best_k, best_cluster = Client.clustering_model.predict(
                 X, len(sentences), proximity_matrix)
             if np.all(best_cluster == best_cluster[0]):
-                keys = Client.keybert_model.predict(curr_sentence)
-                if keys:
-                    for key in keys:
-                        current_level_node = _get_node(
-                            _get_id(_common_data), key[0], _parent_id)
-                        _array_of_nodes.append(current_level_node)
-                        if key[0] not in list(
-                                _this_paragraph_dictionary.keys()):
-                            _this_paragraph_dictionary[key[0]] = dict()
-                        questions = ['What is ', 'Where is ']
-                        qa_model_result = Client.qa_model.predict(
-                            (full_text, key, questions))
-                        result_answer = list(map(
-                            lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
-                        for answer in result_answer:
-                            _array_of_nodes.append(_get_node(
-                                _get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
-                            _this_paragraph_dictionary[key[0]][answer] = dict()
-                    return
+                noun_chunk_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_array(
+                    spacy_doc_from_summary)
+                for noun in noun_chunk_array:
+                    current_level_node = _get_node(
+                        _get_id(_common_data), noun, _parent_id)
+                    _array_of_nodes.append(current_level_node)
+                    if noun not in list(
+                            _this_paragraph_dictionary.keys()):
+                        _this_paragraph_dictionary[noun] = dict()
+                    questions = ['What is ', 'Where is ']
+                    qa_model_result = Client.qa_model.predict(
+                        (original_text, noun, questions))
+                    result_answer = list(map(
+                        lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
+                    for answer in result_answer:
+                        _array_of_nodes.append(_get_node(
+                            _get_id(_common_data), answer, current_level_node[Client.ID_KEY_STRING]))
+                        _this_paragraph_dictionary[noun][answer] = dict()
             return Client.algorithm(
                 original_text,
                 sentences.join('. '),

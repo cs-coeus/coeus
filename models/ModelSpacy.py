@@ -1,6 +1,8 @@
 import spacy
 from typing import Any
+from spacy.pipeline import merge_entities
 from models.ModelInterface import ModelInterface
+from nltk.corpus import stopwords
 import torch
 
 
@@ -10,6 +12,8 @@ class ModelSpacy(ModelInterface):
         if torch.cuda.is_available():
             spacy.require_gpu()
         ModelSpacy.nlp = spacy.load('en_core_web_sm')
+        ModelSpacy.nlp.add_pipe('merge_entities', last=True)
+        ModelSpacy.stop_words = set(stopwords.words('english'))
 
     @staticmethod
     def get_spacy_instance(text):
@@ -25,3 +29,12 @@ class ModelSpacy(ModelInterface):
         for token in spacy_doc:
             dictionary[token] = token.pos_
         return dictionary
+
+    @staticmethod
+    def convert_spacy_object_to_noun_chunk_array(spacy_doc):
+        dictionary = dict()
+        for chunk in spacy_doc.noun_chunks:
+            if chunk.text not in ModelSpacy.stop_words:
+                dictionary[chunk.text] = 1
+        array = list(dictionary.keys())
+        return array
