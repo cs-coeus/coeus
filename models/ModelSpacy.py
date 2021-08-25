@@ -1,5 +1,6 @@
 import spacy
 from typing import Any
+from spacy.pipeline import merge_entities
 from models.ModelInterface import ModelInterface
 from nltk.corpus import stopwords
 import torch
@@ -11,6 +12,7 @@ class ModelSpacy(ModelInterface):
         if torch.cuda.is_available():
             spacy.require_gpu()
         ModelSpacy.nlp = spacy.load('en_core_web_sm')
+        ModelSpacy.nlp.add_pipe('merge_entities', last=True)
         ModelSpacy.stop_words = set(stopwords.words('english'))
 
     @staticmethod
