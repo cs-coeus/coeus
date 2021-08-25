@@ -20,8 +20,6 @@ test_text = """King Mongkut's University of Technology Thonburi can trace its or
 # print(tuple_test)
 # print(qa_model.predict(tuple_test))
 #
-# keybert_model = ModelKeyBert()
-# print(keybert_model.predict(test_text_key))
 #
 # sents = ['Obama speaks to the media in Illinois', 'The president greets the press in Chicago',
 #          'Obama speaks to the media in Illinois', 'The president greets the press in Chicago',
