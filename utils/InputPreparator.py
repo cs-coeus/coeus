@@ -36,6 +36,6 @@ class InputPreparator:
         return data
 
     @staticmethod
-    def preprocess_senetence_to_arr(sentence):
+    def preprocess_sentence_to_arr(sentence):
         return [w for w in sentence.lower().split(
         ) if w not in InputPreparator.stop_words]
