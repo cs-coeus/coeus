@@ -1,5 +1,6 @@
 from sklearn.metrics import pairwise_distances
 from utils.InputPreparator import InputPreparator
+from utils.OutputPreparator import OutputPreparator
 from models.ModelSummarizer import ModelSummarizer
 from models.ModelQA import ModelQA
 from models.ModelClustering import ModelClustering
@@ -18,6 +19,7 @@ class Client:
         Client.clustering_model = ModelClustering()
         Client.spacy_model = ModelSpacy()
         Client.wikipedia_repository = WikipediaRepository()
+        Client.output_preparator = OutputPreparator()
         Client.paragraph_escape_character = '_paragraph'
         Client.ID_KEY_STRING = 'id'
         Client.TEXT_KEY_STRING = 'text'
@@ -44,10 +46,14 @@ class Client:
             body_2: body_1 + '\n' + body_2,
             paragraph_text_array)
 
-        return Client.convert_to_final_json(
+        output = Client.convert_to_final_json(
             Client.convert_to_intermediate_json(
-                Client.generate_original_text_dictionary_from_normalized_input(input_array),
+                Client.generate_original_text_dictionary_from_normalized_input(
+                    input_array),
                 full_text))
+
+        post_processed = OutputPreparator.post_processing(output)
+        return post_processed
 
     @staticmethod
     def generate_mind_map_from_unstructured_text(title, paragraphs):
@@ -56,8 +62,12 @@ class Client:
                 Client.paragraph_escape_character: [
                     paragraph.strip() for paragraph in paragraphs.split('\n') if len(
                         paragraph.strip()) > 0]}}
-        return Client.convert_to_final_json(
+
+        output = Client.convert_to_final_json(
             Client.convert_to_intermediate_json(input_dictionary, paragraphs))
+
+        post_processed = OutputPreparator.post_processing(output)
+        return post_processed
 
     @staticmethod
     def generate_original_text_dictionary_from_normalized_input(input_data):

@@ -11,7 +11,7 @@ class ModelSpacy(ModelInterface):
     def __init__(self):
         if torch.cuda.is_available():
             spacy.require_gpu()
-        ModelSpacy.nlp = spacy.load('en_core_web_sm')
+        ModelSpacy.nlp = spacy.load('en_core_web_lg')
         ModelSpacy.nlp.add_pipe('merge_entities', last=True)
         ModelSpacy.stop_words = set(stopwords.words('english'))
 
