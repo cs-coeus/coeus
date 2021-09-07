@@ -18,7 +18,7 @@ class ModelQA(ModelInterface):
     def QA(original, keyword, questions):
         ans_of_key = []
         for question in questions:
-            q = '{} {} ?'.format(question, keyword)
+            q = f'{question} {keyword} ?'
             result = ModelQA.qa(question=q, context=original)
             if round(result['score'], 4) > ModelQA.ANSWER_THRESHOLD:
                 ans_of_key += [(q, result['answer'])]
