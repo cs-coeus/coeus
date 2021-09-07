@@ -35,6 +35,6 @@ class ModelSpacy(ModelInterface):
         dictionary = dict()
         for chunk in spacy_doc.noun_chunks:
             if chunk.text not in ModelSpacy.stop_words:
-                dictionary[chunk.text] = 1
-        array = list(dictionary.keys())
+                dictionary[chunk.text] = chunk.root.ent_type_
+        array = list(dictionary.items())
         return array
