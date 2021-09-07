@@ -206,7 +206,7 @@ class Client:
         spacy_doc_from_summary = Client.spacy_model.predict(summary)
         sentences = list(spacy_doc_from_summary.sents)
         if len(sentences) <= MIN_SENTENCE_THRESHOLD:
-            noun_ent_type_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_array(
+            noun_ent_type_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_and_entity_type_array(
                 spacy_doc_from_summary)
             for noun, entity_type in noun_ent_type_array:
                 current_level_node = _get_node(
@@ -237,7 +237,7 @@ class Client:
             best_k, best_cluster = Client.clustering_model.predict(
                 X, len(sentences), proximity_matrix)
             if np.all(best_cluster == best_cluster[0]):
-                noun_ent_type_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_array(
+                noun_ent_type_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_and_entity_type_array(
                     spacy_doc_from_summary)
                 for noun, entity_type in noun_ent_type_array:
                     current_level_node = _get_node(
