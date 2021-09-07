@@ -35,8 +35,8 @@ class OutputPreparator:
                         'text']
                     text2 = OutputPreparator._get_node_by_id(id2, nodes)[
                         'text']
-                    if text1 == text2 or OutputPreparator.check_similarity_two_word(text1,
-                                                                                    text2) > OutputPreparator.THRESHOLD:
+                    if text1 == text2 or OutputPreparator.check_similarity_two_word(
+                            text1, text2) > OutputPreparator.THRESHOLD:
                         if id1 in grouped_edges.keys():
                             to_be_delete_id_set.add(id2)
                             break
@@ -64,8 +64,8 @@ class OutputPreparator:
 
         number_of_removed_nodes = len(
             algorithm_output_final_json["nodes"]) - len(nodes)
-        percentage_of_removed_nodes = round((number_of_removed_nodes / len(algorithm_output_final_json["nodes"])) * 100,
-                                            2)
+        percentage_of_removed_nodes = round(
+            (number_of_removed_nodes / len(algorithm_output_final_json["nodes"])) * 100, 2)
         print(
             f'Removed {number_of_removed_nodes} nodes. ({percentage_of_removed_nodes}%)')
 

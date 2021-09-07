@@ -27,6 +27,27 @@ class Client:
         Client.CHILD_ID_KEY_STRING = 'childId'
         Client.KEYWORDS_ESCAPE_CHARACTER = 'keywords'
         Client.CURRENT_ID_KEY_STRING = 'current_id'
+        Client.ENTITIES_QUESTION = {
+            '': ['What is'],
+            'CARDINAL': [],
+            'DATE': ['What happend on'],
+            'EVENT': ['What is the', 'When is the', 'Where is the'],
+            'FAC': ['What is', 'Where is'],
+            'GPE': [],
+            'LANGUAGE': [],
+            'LAW': ['What is'],
+            'LOC': ['What is', 'Where is'],
+            'MONEY': [],
+            'NORP': ['What is'],
+            'ORDINAL': [],
+            'ORG': ['What is', 'Where is'],
+            'PERCENT': [],
+            'PERSON': ['Who is'],
+            'PRODUCT': ['What is', 'How expensive is the', 'How to use'],
+            'QUANTITY': [],
+            'TIME': [],
+            'WORK_OF_ART': ['What is']
+        }
 
     @staticmethod
     def generate_mind_map_from_semi_structure_text(
@@ -185,16 +206,17 @@ class Client:
         spacy_doc_from_summary = Client.spacy_model.predict(summary)
         sentences = list(spacy_doc_from_summary.sents)
         if len(sentences) <= MIN_SENTENCE_THRESHOLD:
-            noun_chunk_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_array(
+            noun_ent_type_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_and_entity_type_array(
                 spacy_doc_from_summary)
-            for noun in noun_chunk_array:
+            for noun, entity_type in noun_ent_type_array:
                 current_level_node = _get_node(
                     _get_id(_common_data), noun, _parent_id)
                 _array_of_nodes.append(current_level_node)
                 if noun not in list(_this_paragraph_dictionary.keys()):
                     _this_paragraph_dictionary[noun] = dict()
-                questions = ['What is ', 'Where is ']
-                qa_model_result = Client.qa_model.predict(
+                questions = Client.ENTITIES_QUESTION[entity_type]
+
+                qa_model_result = [] if len(questions) == 0 else Client.qa_model.predict(
                     (original_text, noun, questions))
                 result_answer = list(map(
                     lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))
@@ -215,17 +237,17 @@ class Client:
             best_k, best_cluster = Client.clustering_model.predict(
                 X, len(sentences), proximity_matrix)
             if np.all(best_cluster == best_cluster[0]):
-                noun_chunk_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_array(
+                noun_ent_type_array = Client.spacy_model.convert_spacy_object_to_noun_chunk_and_entity_type_array(
                     spacy_doc_from_summary)
-                for noun in noun_chunk_array:
+                for noun, entity_type in noun_ent_type_array:
                     current_level_node = _get_node(
                         _get_id(_common_data), noun, _parent_id)
                     _array_of_nodes.append(current_level_node)
                     if noun not in list(
                             _this_paragraph_dictionary.keys()):
                         _this_paragraph_dictionary[noun] = dict()
-                    questions = ['What is ', 'Where is ']
-                    qa_model_result = Client.qa_model.predict(
+                    questions = Client.ENTITIES_QUESTION[entity_type]
+                    qa_model_result = [] if len(questions) == 0 else Client.qa_model.predict(
                         (original_text, noun, questions))
                     result_answer = list(map(
                         lambda tuple_of_question_answer: tuple_of_question_answer[1], qa_model_result))

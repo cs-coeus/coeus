@@ -31,10 +31,10 @@ class ModelSpacy(ModelInterface):
         return dictionary
 
     @staticmethod
-    def convert_spacy_object_to_noun_chunk_array(spacy_doc):
+    def convert_spacy_object_to_noun_chunk_and_entity_type_array(spacy_doc):
         dictionary = dict()
         for chunk in spacy_doc.noun_chunks:
             if chunk.text not in ModelSpacy.stop_words:
-                dictionary[chunk.text] = 1
-        array = list(dictionary.keys())
+                dictionary[chunk.text] = chunk.root.ent_type_
+        array = list(dictionary.items())
         return array
