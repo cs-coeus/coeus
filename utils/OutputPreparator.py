@@ -101,7 +101,7 @@ class OutputPreparator:
             if parent_id in grouped_edges:
                 grouped_edges[parent_id].add(child_id)
             else:
-                grouped_edges[parent_id] = set()
+                grouped_edges[parent_id] = {child_id}
         return grouped_edges
 
     @staticmethod
