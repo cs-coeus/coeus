@@ -32,9 +32,9 @@ class OutputPreparator:
                     if id1 in to_be_delete_id_set or id2 in to_be_delete_id_set:
                         continue
                     text1 = OutputPreparator._get_node_by_id(id1, nodes)[
-                        'text']
+                        'text'].lower()
                     text2 = OutputPreparator._get_node_by_id(id2, nodes)[
-                        'text']
+                        'text'].lower()
                     if text1 == text2 or OutputPreparator.check_similarity_two_word(
                             text1, text2) > OutputPreparator.THRESHOLD:
                         if id1 in grouped_edges.keys():
