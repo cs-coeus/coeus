@@ -1,5 +1,6 @@
 from repositories.DataRepository import DataRepository
 import requests
+from urllib.parse import unquote
 from typing import Any, List
 
 
@@ -13,7 +14,7 @@ class WikipediaRepository(DataRepository):
             WikipediaRepository.base_url %
             title).json()['query']['pages']
         if len(page.keys()) == 1:
-            return '= ' + title.replace('_', ' ') + \
+            return '= ' + unquote(title).replace('_', ' ') + \
                 ' =\n' + next(iter(page.values()))['extract']
         raise Exception('No article found')
 
