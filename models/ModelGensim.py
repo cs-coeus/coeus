@@ -21,5 +21,13 @@ class ModelGensim(ModelInterface):
         return ModelGensim.model.wmdistance(word1, word2)
 
     @staticmethod
+    def get_word_embedded(word):
+        try:
+            word_embedded = ModelGensim.model[word]
+            return word_embedded.tolist()
+        except KeyError:
+            return f"{word} not in vocabulary"
+
+    @staticmethod
     def predict(input: str) -> None:
         return

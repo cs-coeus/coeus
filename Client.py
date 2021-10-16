@@ -143,7 +143,7 @@ class Client:
         def generate_node(_id, _text, _parent_id):
             return {
                 Client.ID_KEY_STRING: _id,
-                Client.TEXT_KEY_STRING: _text,
+                Client.TEXT_KEY_STRING: _text.strip(),
                 Client.PARENT_ID_KEY_STRING: _parent_id
             }
 
