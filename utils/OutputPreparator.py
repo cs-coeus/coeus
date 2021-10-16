@@ -1,5 +1,6 @@
 import copy
 
+from models.ModelClustering import ModelClustering
 from models.ModelGensim import ModelGensim
 
 
@@ -7,6 +8,7 @@ class OutputPreparator:
 
     def __init__(self):
         OutputPreparator.THRESHOLD = 0.4
+        OutputPreparator.clustering_model = ModelClustering()
 
     @staticmethod
     def pruning(algorithm_output_final_json):
@@ -108,6 +110,84 @@ class OutputPreparator:
         return copied_grouped_edges
 
     @staticmethod
-    def post_processing(algorithm_output_final_json):
+    def topic_clustering_for_unstructured_result(json_output):
+        child_node_id_of_root = OutputPreparator._get_child_node_id_of_root(json_output)
+        level_1_nodes = OutputPreparator._get_text_from_ids_array(child_node_id_of_root, json_output)
+        X_input, nodes_map_to_X = OutputPreparator._generate_X_for_k_medoids_clustering(level_1_nodes)
+        best_k, best_cluster, center = OutputPreparator.clustering_model.k_medoids_clustering(X_input)
+        nodes_with_embbeding_map_with_cluster = OutputPreparator._find_center_node_and_label(best_cluster, center,
+                                                                                             nodes_map_to_X)
+        new_json_output = OutputPreparator._build_new_json_from_clustering(best_cluster, center,
+                                                                           nodes_with_embbeding_map_with_cluster,
+                                                                           json_output)
+        return new_json_output
+
+    @staticmethod
+    def _get_child_node_id_of_root(json_output):
+        target_node = []
+        for edge in json_output['edges']:
+            if edge['parentId'] == 1:
+                target_node += [edge['childId']]
+        return target_node
+
+    @staticmethod
+    def _get_text_from_ids_array(array_of_ids, json_output):
+        nodes = []
+        for node in json_output['nodes']:
+            if node['id'] in array_of_ids:
+                nodes += [node]
+        return nodes
+
+    @staticmethod
+    def _generate_X_for_k_medoids_clustering(array_of_nodes):
+        X = []
+        node_ids_map_to_X = []
+        for i, node in enumerate(array_of_nodes):
+            word_embedded = ModelGensim.get_word_embedded(node['text'])
+            if type(word_embedded) == type('str'):
+                continue
+            else:
+                X += [word_embedded]
+                node_ids_map_to_X += [{'id': node['id'], 'text': node['text'], 'embedded': word_embedded}]
+        return X, node_ids_map_to_X
+
+    @staticmethod
+    def _find_center_node_and_label(_cluster_label, _centers, _nodes_with_embbeding):
+        _nodes_with_embbeding_copy = copy.deepcopy(_nodes_with_embbeding)
+        for i, label in enumerate(_cluster_label):
+            _nodes_with_embbeding_copy[i]['label'] = label
+
+        for center in _centers:
+            for node in _nodes_with_embbeding_copy:
+                if str(node['embedded']) == str(center):
+                    node['center'] = True
+        for node in _nodes_with_embbeding_copy:
+            del node['embedded']
+        return _nodes_with_embbeding_copy
+
+    @staticmethod
+    def _build_new_json_from_clustering(_best_cluster, _center, _nodes_with_embbeding_map_with_cluster, _original_json):
+        _original_json_copy = copy.deepcopy(_original_json)
+        new_parent_map = {}
+        nodes_id_label_map = {}
+        for node in _nodes_with_embbeding_map_with_cluster:
+            keys = node.keys()
+            nodes_id_label_map[node['id']] = node['label']
+            if 'center' in keys and node['center']:
+                new_parent_map[node['label']] = node['id']
+
+        list_of_node_to_be_update = nodes_id_label_map.keys()
+        for edge in _original_json_copy['edges']:
+            if edge['childId'] in list_of_node_to_be_update:
+                if edge['childId'] == new_parent_map[nodes_id_label_map[edge['childId']]]:
+                    edge['parentId'] = 1
+                else:
+                    edge['parentId'] = new_parent_map[nodes_id_label_map[edge['childId']]]
+        return _original_json_copy
+
+    @staticmethod
+    def post_processing(algorithm_output_final_json, is_semi_structure):
         pruned_output = OutputPreparator.pruning(algorithm_output_final_json)
-        return pruned_output
+        if is_semi_structure:
+            return pruned_output
+        return OutputPreparator.topic_clustering_for_unstructured_result(pruned_output)
