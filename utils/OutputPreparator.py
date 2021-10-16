@@ -1,15 +1,12 @@
 import copy
-import spacy
-import torch
+
+from models.ModelGensim import ModelGensim
 
 
 class OutputPreparator:
 
     def __init__(self):
-        OutputPreparator.THRESHOLD = 0.6
-        if torch.cuda.is_available():
-            spacy.require_gpu()
-        OutputPreparator.nlp = spacy.load('en_core_web_lg')
+        OutputPreparator.THRESHOLD = 0.4
 
     @staticmethod
     def pruning(algorithm_output_final_json):
@@ -35,7 +32,7 @@ class OutputPreparator:
                         'text'].lower()
                     text2 = OutputPreparator._get_node_by_id(id2, nodes)[
                         'text'].lower()
-                    if text1 == text2 or OutputPreparator.check_similarity_two_word(
+                    if text1 == text2 or ModelGensim.get_similarity_two_word_by_w2v(
                             text1, text2) > OutputPreparator.THRESHOLD:
                         if id1 in grouped_edges.keys():
                             to_be_delete_id_set.add(id2)
@@ -76,12 +73,6 @@ class OutputPreparator:
         id_list = [node['id'] for node in nodes]
         idx = id_list.index(id)
         return nodes[idx]
-
-    @staticmethod
-    def check_similarity_two_word(word1, word2):
-        tokens = OutputPreparator.nlp(word1 + ' ' + word2)
-        token1, token2 = tokens[0], tokens[1]
-        return token1.similarity(token2)
 
     @staticmethod
     def _remove_empty_set(grouped_edges):

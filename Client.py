@@ -5,6 +5,7 @@ from models.ModelSummarizer import ModelSummarizer
 from models.ModelQA import ModelQA
 from models.ModelClustering import ModelClustering
 from models.ModelSpacy import ModelSpacy
+from models.ModelGensim import ModelGensim
 from repositories.WikipediaRepository import WikipediaRepository
 from functools import reduce
 import numpy as np
@@ -13,6 +14,7 @@ import numpy as np
 class Client:
 
     def __init__(self):
+        Client.gensim_model = ModelGensim()
         Client.input_preparator = InputPreparator()
         Client.summarize_model = ModelSummarizer()
         Client.qa_model = ModelQA()
@@ -230,7 +232,7 @@ class Client:
             X = np.arange(len(data)).reshape(-1, 1)
 
             def distance(x, y):
-                return Client.clustering_model.wmd.wmdistance(Client.input_preparator.preprocess(
+                return Client.gensim_model.get_wmd_distance(Client.input_preparator.preprocess(
                     data[int(x[0])]), Client.input_preparator.preprocess(data[int(y[0])]))
 
             proximity_matrix = pairwise_distances(X, X, metric=distance)
