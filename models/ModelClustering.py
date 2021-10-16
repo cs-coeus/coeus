@@ -1,5 +1,7 @@
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
+from sklearn_extra.cluster import KMedoids
+
 from models.ModelInterface import ModelInterface
 from typing import Any, Tuple
 
@@ -30,3 +32,23 @@ class ModelClustering(ModelInterface):
     @staticmethod
     def predict(input: Tuple[Any, int, Any]) -> Tuple[int, Any]:
         return ModelClustering.clustering(input[0], input[1], input[2])
+
+    @staticmethod
+    def k_medoids_clustering(X):
+        best_k = -1
+        best_cluster = []
+        best_center = []
+        total = int(len(X) / 2)
+        best_score = -100
+        min_cluster = 2
+        for n in range(min_cluster, total):
+            algorithm = KMedoids(
+                n_clusters=n)
+            clusters = algorithm.fit_predict(X)
+            score = silhouette_score(X, algorithm.labels_)
+            if score > best_score:
+                best_score = score
+                best_k = n
+                best_cluster = clusters
+                best_center = algorithm.cluster_centers_
+        return best_k, best_cluster.tolist(), best_center.tolist()
