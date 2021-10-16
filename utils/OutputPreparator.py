@@ -115,6 +115,8 @@ class OutputPreparator:
         level_1_nodes = OutputPreparator._get_text_from_ids_array(child_node_id_of_root, json_output)
         X_input, nodes_map_to_X = OutputPreparator._generate_X_for_k_medoids_clustering(level_1_nodes)
         best_k, best_cluster, center = OutputPreparator.clustering_model.k_medoids_clustering(X_input)
+        if best_k == -1:
+            return json_output
         nodes_with_embbeding_map_with_cluster = OutputPreparator._find_center_node_and_label(best_cluster, center,
                                                                                              nodes_map_to_X)
         new_json_output = OutputPreparator._build_new_json_from_clustering(best_cluster, center,
