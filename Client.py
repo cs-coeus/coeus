@@ -75,7 +75,7 @@ class Client:
                     input_array),
                 full_text))
 
-        post_processed = OutputPreparator.post_processing(output)
+        post_processed = OutputPreparator.post_processing(output, True)
         return post_processed
 
     @staticmethod
@@ -89,7 +89,7 @@ class Client:
         output = Client.convert_to_final_json(
             Client.convert_to_intermediate_json(input_dictionary, paragraphs))
 
-        post_processed = OutputPreparator.post_processing(output)
+        post_processed = OutputPreparator.post_processing(output, False)
         return post_processed
 
     @staticmethod
